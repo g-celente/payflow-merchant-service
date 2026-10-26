@@ -1,8 +1,12 @@
 spring:
   config:
     import: optional:file:.env[.properties]
+  mongodb:
+    # Without MONGODB_URI, the Mongo started by `docker compose up -d mongo`.
+    uri: ${MONGODB_URI:mongodb://localhost:27017}
 
 payflow:
+  internal-key: ${PAYFLOW_INTERNAL_KEY}
   demo-merchant:
     enabled: true
     api-key: ${DEMO_MERCHANT_API_KEY}

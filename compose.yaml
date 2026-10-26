@@ -1,18 +1,35 @@
-name: payflow
+name: payflow-merchant
 
+# Local run: MongoDB 8 in a container + the service. Set MONGODB_URI in .env to use Atlas instead.
 services:
-  payment-api:
-    image: ${PAYMENT_API_IMAGE:-payflow/payment-api:dev}
+  mongo:
+    image: mongo:8.0
+    ports:
+      - "127.0.0.1:${MONGO_PORT:-27017}:27017"
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  merchant-service:
+    image: ${MERCHANT_SERVICE_IMAGE:-payflow/merchant-service:dev}
     build:
       context: .
+    depends_on:
+      mongo:
+        condition: service_healthy
     environment:
-      MONGODB_URI: ${MONGODB_URI:?Set MONGODB_URI to your Atlas connection string}
+      MONGODB_URI: ${MONGODB_URI:-mongodb://mongo:27017}
       MONGODB_DATABASE: ${MONGODB_DATABASE:-payflow}
+      PAYFLOW_INTERNAL_KEY: ${PAYFLOW_INTERNAL_KEY:?Set PAYFLOW_INTERNAL_KEY in .env}
       PAYFLOW_DEMO_MERCHANT_ENABLED: "true"
       PAYFLOW_DEMO_MERCHANT_API_KEY: ${DEMO_MERCHANT_API_KEY:?Set DEMO_MERCHANT_API_KEY in .env}
       MANAGEMENT_ENDPOINT_HEALTH_PROBES_ENABLED: "true"
     ports:
-      - "127.0.0.1:${API_PORT:-8080}:8080"
+      - "127.0.0.1:${API_PORT:-8081}:8080"
     read_only: true
     tmpfs:
       - /tmp
@@ -20,3 +37,6 @@ services:
       - ALL
     security_opt:
       - no-new-privileges:true
+
+volumes:
+  mongo-data:

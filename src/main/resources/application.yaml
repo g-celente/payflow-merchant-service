@@ -1,6 +1,6 @@
 spring:
   application:
-    name: payment-api
+    name: merchant-service
   mongodb:
     uri: ${MONGODB_URI}
     database: ${MONGODB_DATABASE:payflow}
@@ -22,6 +22,16 @@ management:
     health:
       show-details: never
 
+# Swagger stays public on purpose: the PJBL delivery requires it in the cloud.
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    persist-authorization: true
+
+# payflow.internal-key comes from PAYFLOW_INTERNAL_KEY (required, 32+ characters).
 payflow:
   demo-merchant:
     enabled: false

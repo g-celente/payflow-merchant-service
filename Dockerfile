@@ -15,7 +15,7 @@ WORKDIR /app
 
 RUN groupadd --gid 10001 payflow \
     && useradd --uid 10001 --gid payflow --no-create-home --shell /usr/sbin/nologin payflow
-COPY --from=build --chown=10001:10001 /workspace/target/payment-api-0.0.1-SNAPSHOT.jar app.jar
+COPY --from=build --chown=10001:10001 /workspace/target/merchant-service.jar app.jar
 
 USER 10001:10001
 EXPOSE 8080
